@@ -8,16 +8,25 @@ import urllib.parse
 st.set_page_config(page_title="Kelora WCAG Demo", layout="wide", initial_sidebar_state="collapsed")
 
 # --- CUSTOM CSS ---
+# --- CUSTOM CSS ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif !important;
+    /* WYMUSZENIE IDEALNEGO TŁA Z KELORA.APP (#0A0F1C) */
+    .stApp {
+        background-color: #0A0F1C !important;
     }
+    
+    /* Kolor tekstów głównych na biały/jasnoszary dla kontrastu */
+    html, body, [class*="css"], p, h1, h2, h3, h4, span {
+        font-family: 'Inter', sans-serif !important;
+        color: #F3F4F6 !important; 
+    }
+
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
+    header {background-color: transparent !important; visibility: hidden;}
     
     div.stButton > button:first-child {
         background-color: #6366F1;
@@ -33,9 +42,14 @@ st.markdown("""
         color: white;
         box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     }
+    
+    /* Ciemne tło dla tabeli i ramek */
     .stDataFrame {
         border-radius: 8px;
         overflow: hidden;
+    }
+    [data-testid="stMetricValue"] {
+        color: #FFFFFF !important;
     }
     </style>
 """, unsafe_allow_html=True)
