@@ -2,110 +2,122 @@ import streamlit as st
 import pandas as pd
 import time
 
-# --- KONFIGURACJA STRONY ---
-# Layout "wide" żeby tabela i kolumny dobrze wyglądały w iframe
+# --- PAGE CONFIGURATION ---
 st.set_page_config(page_title="Kelora WCAG Demo", layout="wide", initial_sidebar_state="collapsed")
 
-# --- CUSTOM CSS (Ukrywamy branding Streamlita dla embeda) ---
+# --- CUSTOM CSS (Hostinger-like Font 'Inter', No Emojis, Clean UI) ---
 st.markdown("""
     <style>
-    /* Ukrycie paska menu i stopki Streamlita */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    /* Global Font Settings */
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif !important;
+    }
+
+    /* Hide Streamlit Branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Własny styl przycisków pod markę Kelora */
+    /* Custom Button Styling */
     div.stButton > button:first-child {
-        background-color: #6366F1; /* Twój główny kolor, zmień na swój */
+        background-color: #6366F1;
         color: white;
         border-radius: 8px;
-        font-weight: bold;
+        font-weight: 600;
         border: none;
         padding: 0.5rem 1rem;
+        transition: all 0.3s ease;
     }
     div.stButton > button:hover {
         background-color: #4F46E5;
         color: white;
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    
+    /* Clean up dataframe borders */
+    .stDataFrame {
+        border-radius: 8px;
+        overflow: hidden;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# --- MOCKUPY SILNIKÓW (Tutaj później podepniesz swoje API) ---
+# --- MOCKUP ENGINES (Replace with your actual APIs later) ---
 def run_axe(url): time.sleep(1.5); return {"score": 85, "errors": 12, "warnings": 24}
 def run_wave(url): time.sleep(1.2); return {"errors": 15, "contrast": 8, "alerts": 32}
 def run_lighthouse(url): time.sleep(2.0); return {"score": 78, "aria_issues": 5, "nav_issues": 3}
 
-# --- GŁÓWNY INTERFEJS ---
-st.markdown("## 🚀 Błyskawiczny Audyt Dostępności (Wersja Demo)")
-st.markdown("Sprawdź swoją stronę główną za pomocą 3 silników jednocześnie. **Oszczędź 15 minut manualnego klikania.**")
+# --- MAIN INTERFACE ---
+st.markdown("## Lightning Fast Accessibility Audit (Demo)")
+st.markdown("Check your homepage using 3 engines simultaneously. **Save 15 minutes of manual testing.**")
 
-# Sekcja Inputu
+# Input Section
 col_input, col_btn = st.columns([3, 1])
 with col_input:
-    target_url = st.text_input("Wprowadź URL", placeholder="https://twoj-sklep.pl", label_visibility="collapsed")
+    target_url = st.text_input("Enter URL", placeholder="https://your-store.com", label_visibility="collapsed")
 with col_btn:
-    start_scan = st.button("Skanuj teraz (Za darmo)", use_container_width=True)
+    start_scan = st.button("Scan Now (Free)", use_container_width=True)
 
-# --- LOGIKA SKANOWANIA ---
+# --- SCAN LOGIC ---
 if start_scan:
     if target_url.startswith("http"):
-        with st.spinner("Uruchamiam skanery: Axe, WAVE i Lighthouse..."):
-            # Pobieranie danych (symulacja)
+        with st.spinner("Running scanners: Axe, WAVE, and Lighthouse..."):
+            # Fetching data (simulation)
             axe_data = run_axe(target_url)
             wave_data = run_wave(target_url)
             lh_data = run_lighthouse(target_url)
         
-        # --- WYNIKI: 3 KOLUMNY ---
-        st.success("Skanowanie zakończone! Zobacz surowe dane poniżej.")
+        # --- RESULTS: 3 COLUMNS ---
+        st.success("Scan complete! View the raw data below.")
         st.markdown("---")
         
         c1, c2, c3 = st.columns(3)
         with c1:
-            st.markdown("### 🪓 Axe Core")
-            st.metric(label="Błędy krytyczne", value=axe_data["errors"])
-            st.caption("Struktura DOM, ARIA, semantyka.")
+            st.markdown("### Axe Core")
+            st.metric(label="Critical Errors", value=axe_data["errors"])
+            st.caption("DOM structure, ARIA, semantics.")
         with c2:
-            st.markdown("### 🌊 WAVE")
-            st.metric(label="Błędy kontrastu", value=wave_data["contrast"])
-            st.caption("Kontrast, brakujące etykiety.")
+            st.markdown("### WAVE")
+            st.metric(label="Contrast Errors", value=wave_data["contrast"])
+            st.caption("Contrast, missing labels.")
         with c3:
-            st.markdown("### 💡 Lighthouse")
-            st.metric(label="Wynik Accessibility", value=f"{lh_data['score']}/100")
-            st.caption("Ogólna ocena, SEO, nawigacja.")
+            st.markdown("### Lighthouse")
+            st.metric(label="Accessibility Score", value=f"{lh_data['score']}/100")
+            st.caption("Overall score, SEO, navigation.")
 
-        # --- TABELA ZBIORCZA (Aha! Moment) ---
-        st.markdown("#### 📊 Podsumowanie skanowania")
+        # --- SUMMARY TABLE ---
+        st.markdown("#### Scan Summary")
         df_summary = pd.DataFrame({
-            "Silnik": ["Axe Core", "WAVE", "Lighthouse", "De-duplikacja AI (Kelora)"],
-            "Wykryte Błędy": [axe_data["errors"], wave_data["errors"] + wave_data["contrast"], lh_data["aria_issues"], "🔒 Zablokowane"],
-            "Ostrzeżenia": [axe_data["warnings"], wave_data["alerts"], lh_data["nav_issues"], "🔒 Zablokowane"]
+            "Engine": ["Axe Core", "WAVE", "Lighthouse", "AI De-duplication (Kelora)"],
+            "Detected Errors": [axe_data["errors"], wave_data["errors"] + wave_data["contrast"], lh_data["aria_issues"], "Locked (Premium)"],
+            "Warnings": [axe_data["warnings"], wave_data["alerts"], lh_data["nav_issues"], "Locked (Premium)"]
         })
         st.dataframe(df_summary, hide_index=True, use_container_width=True)
 
         # --- PAYWALL / LEAD MAGNET ---
         st.markdown("---")
-        st.markdown("### 🔥 Chcesz pełnego audytu User Journey?")
-        st.info("Powyższy test sprawdził tylko **statyczną stronę główną**. Prawdziwe problemy z dostępnością kryją się w rozwijanych menu, pop-upach i koszykach zakupowych.")
+        st.markdown("### Want a full User Journey audit?")
+        st.info("This test only checked a static homepage. Real accessibility issues hide in dropdowns, pop-ups, and checkout processes.")
         
         st.markdown("""
-        **Co zyskujesz w pełnej wersji:**
-        * 🤖 **Testowanie całych ścieżek** (Dodaj do koszyka -> Logowanie -> Płatność)
-        * ⌨️ **Symulacja klawiatury (Tab)** i czytników ekranu
-        * 📄 **Gotowy raport PDF** z rekomendacjami naprawczymi (Fixes) od AI
+        **What you get in the full version:**
+        * **Full flow testing** (Add to cart -> Login -> Checkout)
+        * **Keyboard (Tab)** and screen reader simulation
+        * **Ready-to-use PDF report** with AI remediation fixes
         """)
         
-        st.markdown("#### Zarezerwuj bezpłatne 15-minutowe demo pełnej platformy:")
+        st.markdown("#### Book a free 15-minute demo of the full platform:")
         
         lead_col1, lead_col2 = st.columns([2, 1])
         with lead_col1:
-            email = st.text_input("Służbowy adres e-mail", placeholder="jan@twojaagencja.pl", label_visibility="collapsed")
+            email = st.text_input("Work email address", placeholder="john@youragency.com", label_visibility="collapsed")
         with lead_col2:
-            if st.button("Zabukuj Demo", type="primary", use_container_width=True):
+            if st.button("Book Demo", type="primary", use_container_width=True):
                 if "@" in email:
-                    # Tutaj możesz podpiąć webhooka do Make/Zapier/Discorda, żeby wysłał Ci powiadomienie
-                    st.success(f"Dzięki! Odezwiemy się na {email} w ciągu 24h.")
-                    st.balloons()
+                    st.success(f"Thanks! We will contact you at {email} within 24h.")
                 else:
-                    st.error("Podaj poprawny e-mail.")
+                    st.error("Please enter a valid email.")
     else:
-        st.warning("Pamiętaj o dodaniu http:// lub https:// przed adresem.")
+        st.warning("Remember to add http:// or https:// before the address.")
